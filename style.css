@@ -1,0 +1,389 @@
+/* Сброс и базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #8A2387, #E94057, #F27121);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    color: white;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Экран старта */
+.start-content {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 40px 25px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: 3rem;
+    margin-bottom: 10px;
+    background: linear-gradient(45deg, #FFD700, #FF8C00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.instructions {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 30px;
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.instructions p {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.instructions i {
+    color: #FFD700;
+    margin-right: 10px;
+    width: 20px;
+}
+
+/* Кнопки */
+.btn-start, .btn-speak {
+    background: linear-gradient(45deg, #E94057, #8A2387);
+    color: white;
+    border: none;
+    padding: 18px 40px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(233, 64, 87, 0.4);
+    margin: 20px auto;
+    display: block;
+    max-width: 300px;
+}
+
+.btn-start:hover, .btn-speak:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(233, 64, 87, 0.6);
+}
+
+.btn-speak {
+    background: linear-gradient(45deg, #00B4DB, #0083B0);
+    box-shadow: 0 10px 30px rgba(0, 180, 219, 0.4);
+}
+
+.btn-speak:hover {
+    box-shadow: 0 15px 40px rgba(0, 180, 219, 0.6);
+}
+
+/* Игровой экран */
+.game-screen {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 25px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 90vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    font-size: 1.2rem;
+}
+
+.score, .streak {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.score i {
+    color: #FFD700;
+}
+
+.streak i {
+    color: #E94057;
+}
+
+/* Контейнер мема */
+.meme-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.meme-label {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.meme-image-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.meme-image {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    transition: filter 0.5s ease;
+}
+
+.meme-image.blurred {
+    filter: blur(15px) brightness(0.7);
+}
+
+.meme-image.revealed {
+    filter: none;
+}
+
+.hint-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: white;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    opacity: 0.7;
+}
+
+.meme-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-top: 20px;
+    color: #FFD700;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Секция голоса */
+.voice-section {
+    margin: 25px 0;
+}
+
+.voice-indicator {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(45deg, #00B4DB, #0083B0);
+    border-radius: 50%;
+    margin: 0 auto 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.voice-indicator.active {
+    background: linear-gradient(45deg, #E94057, #8A2387);
+    transform: scale(1.1);
+    animation: pulse 1s infinite;
+}
+
+.voice-indicator i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(233, 64, 87, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(233, 64, 87, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(233, 64, 87, 0);
+    }
+}
+
+.hint {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 10px;
+    min-height: 20px;
+}
+
+/* Результат */
+.result {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px 0;
+    animation: slideIn 0.5s ease;
+    position: relative;
+    z-index: 100;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.result-icon .fa-check-circle {
+    color: #4CAF50;
+}
+
+.result-icon .fa-times-circle {
+    color: #E94057;
+}
+
+.result-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.correct-answer {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+/* Управление */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-control {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 80px;
+}
+
+.btn-control:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+/* Конфетти */
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .meme-image-container {
+        max-width: 320px;
+    }
+    
+    .voice-indicator {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .voice-indicator i {
+        font-size: 2rem;
+    }
+    
+    .btn-start, .btn-speak {
+        padding: 16px 30px;
+        font-size: 1.1rem;
+        max-width: 260px;
+    }
+    
+    .meme-name {
+        font-size: 1.5rem;
+    }
+}

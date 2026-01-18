@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meme Master - Угадай мем по голосу!</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" id="start-screen">
+        <div class="start-content">
+            <h1><i class="fas fa-laugh-beam"></i> MEME MASTER</h1>
+            <p class="subtitle">Смотри картинку → Говори название мема → Угадывай!</p>
+            <button class="btn-start" id="start-btn">
+                <i class="fas fa-play"></i> ИГРАТЬ
+            </button>
+            <div class="instructions">
+                <p><i class="fas fa-microphone"></i> Нажми "ГОВОРИТЬ" и скажи название мема</p>
+                <p><i class="fas fa-images"></i> 3 правильных ответа = бонусный мем!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container game-screen hidden" id="game-screen">
+        <div class="header">
+            <div class="score"><i class="fas fa-star"></i> Счёт: <span id="score">0</span></div>
+            <div class="streak"><i class="fas fa-fire"></i> Серия: <span id="streak">0</span></div>
+        </div>
+
+        <div class="meme-container" id="meme-container">
+            <div class="meme-label">УГАДАЙ МЕМ</div>
+            <div class="meme-image-container">
+                <img id="meme-image" src="" alt="Мем" class="meme-image blurred">
+                <div class="hint-overlay" id="hint-overlay">?</div>
+            </div>
+            <div class="meme-name hidden" id="meme-name"></div>
+        </div>
+
+        <div class="voice-section">
+            <div class="voice-indicator" id="voice-indicator">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <button class="btn-speak" id="speak-btn">
+                <i class="fas fa-microphone-alt"></i> ГОВОРИТЬ ОТВЕТ
+            </button>
+            <p class="hint" id="hint">Скажи название мема</p>
+        </div>
+
+        <div class="result hidden" id="result">
+            <div class="result-icon"><i id="result-icon"></i></div>
+            <div class="result-text" id="result-text"></div>
+            <div class="correct-answer" id="correct-answer"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-control" id="skip-btn"><i class="fas fa-forward"></i></button>
+            <button class="btn-control" id="hint-btn"><i class="fas fa-lightbulb"></i></button>
+            <button class="btn-control" id="restart-btn"><i class="fas fa-redo"></i></button>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Звуки -->
+    <audio id="correct-sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="wrong-sound" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+    <audio id="win-sound" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
