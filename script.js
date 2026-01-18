@@ -1,53 +1,48 @@
 // ======================
-// НАСТРОЙКА МЕМОВ - РЕДАКТИРУЙ ЗДЕСЬ!
+// НАСТРОЙКА МЕМОВ
 // ======================
 
 const memes = [
-    // ПРИМЕР 1 - скопируй и измени под свои мемы:
     {
         id: 1,
-        image: "memes/meme1.png",  // ← путь к картинке в папке memes/
-        name: "о как",  // ← как называется мем
-        altNames: ["", ""]  // ← другие названия, которые можно сказать
+        image: "memes/meme1.png",
+        name: "о как",
+        altNames: ["22"]
     },
-    // ПРИМЕР 2:
     {
         id: 2,
         image: "memes/meme2.png",
         name: "смерть в нищите",
-        altNames: ["смерть"]
+        altNames: ["смерть", "бедность", "нищета"]
     },
-    // ПРИМЕР 3:
     {
         id: 3,
         image: "memes/meme3.png",
         name: "умный человек в очках",
         altNames: ["умный человек в очках скачать обои"]
     },
-    // ДОБАВЛЯЙ СВОИ МЕМЫ ТУТ:
     {
-         id: 4,
-         image: "memes/meme4.png",
-         name: "шлепа",
-         altNames: ["большой шлепа"]
-     },
+        id: 4,
+        image: "memes/meme4.png",
+        name: "шлепа",
+        altNames: ["большой шлепа"]
+    },
     {
-         id: 5,
-         image: "memes/meme5.png",
-         name: "смайл фейс",
-         altNames: ["фейс","смайлик фейс"]
-     }
-    ,
+        id: 5,
+        image: "memes/meme5.png",
+        name: "смайл фейс",
+        altNames: ["фейс", "смайлик", "улыбка"]
+    },
     {
-         id: 6,
-         image: "memes/meme6.jpg",
-         name: "солнышко",
-         altNames: ["любимая девочка"]
-     }
+        id: 6,
+        image: "memes/meme6.jpg",
+        name: "солнышко",
+        altNames: ["любимая девочка"]
+    }
 ];
 
 // ======================
-// ИГРОВАЯ ЛОГИКА (не трогай)
+// ИГРОВАЯ ЛОГИКА
 // ======================
 
 let currentMemeIndex = 0;
@@ -71,9 +66,45 @@ document.addEventListener('click', function() {
         silentAudio.volume = 0.01;
         silentAudio.play().then(() => {
             soundsEnabled = true;
-        }).catch(e => {});
+            console.log("Звуки активированы");
+            // Предзагрузка звуков
+            preloadSounds();
+        }).catch(e => {
+            console.log("Не удалось активировать звуки");
+        });
     }
 });
+
+// Предзагрузка звуков
+function preloadSounds() {
+    const sounds = ['correct', 'wrong', 'win'];
+    sounds.forEach(sound => {
+        const audio = new Audio(`sounds/${sound}.mp3`);
+        audio.volume = 0;
+        audio.play().then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+        }).catch(e => {});
+    });
+}
+
+// Воспроизвести звук
+function playSound(soundName) {
+    if (!soundsEnabled) {
+        console.log("Звуки не активированы");
+        return;
+    }
+    
+    try {
+        const audio = new Audio(`sounds/${soundName}.mp3`);
+        audio.volume = 0.7;
+        audio.play().catch(e => {
+            console.log("Ошибка воспроизведения:", soundName, e);
+        });
+    } catch (e) {
+        console.log("Ошибка создания звука:", e);
+    }
+}
 
 // Показать мем
 function showMeme() {
@@ -97,37 +128,82 @@ function startVoiceRecording() {
     recognition = new SpeechRecognition();
     recognition.lang = 'ru-RU';
     recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
         isRecording = true;
         hintElement.textContent = "Слушаю...";
+        console.log("Запись начата");
     };
 
     recognition.onresult = (event) => {
         const spokenText = event.results[0][0].transcript.toLowerCase();
+        console.log("Вы сказали:", spokenText);
         checkAnswer(spokenText);
     };
 
     recognition.onend = () => {
         isRecording = false;
         recognition = null;
+        console.log("Запись завершена");
     };
 
-    recognition.start();
+    recognition.onerror = (event) => {
+        console.log("Ошибка распознавания:", event.error);
+        isRecording = false;
+        hintElement.textContent = "Ошибка. Попробуй ещё раз";
+    };
+
+    try {
+        recognition.start();
+    } catch (e) {
+        console.log("Ошибка при старте распознавания:", e);
+    }
 }
 
-// Проверка ответа
+// Проверка ответа - ИСПРАВЛЕННАЯ
 function checkAnswer(spokenText) {
     const meme = memes[currentMemeIndex];
-    const correctNames = [meme.name.toLowerCase(), ...meme.altNames.map(n => n.toLowerCase())];
+    
+    // Создаем массив всех допустимых ответов
+    const correctAnswers = [
+        meme.name.toLowerCase(),
+        ...meme.altNames.map(name => name.toLowerCase())
+    ].filter(name => name.trim() !== ''); // Убираем пустые строки
+    
+    console.log("Правильные варианты:", correctAnswers);
+    console.log("Сказал пользователь:", spokenText);
     
     let isCorrect = false;
-    for (const name of correctNames) {
-        if (spokenText.includes(name) || name.includes(spokenText)) {
+    
+    // Проверяем каждый вариант
+    for (const correctAnswer of correctAnswers) {
+        // Проверяем, содержит ли сказанный текст правильный ответ
+        if (spokenText.includes(correctAnswer)) {
+            isCorrect = true;
+            break;
+        }
+        
+        // Также проверяем на частичное совпадение (для длинных фраз)
+        const spokenWords = spokenText.split(' ');
+        const correctWords = correctAnswer.split(' ');
+        
+        // Если хотя бы 2 слова совпадают, считаем правильным
+        let matchingWords = 0;
+        for (const word of spokenWords) {
+            if (correctWords.includes(word) && word.length > 2) {
+                matchingWords++;
+            }
+        }
+        
+        if (matchingWords >= 2 || (correctWords.length === 1 && spokenWords.includes(correctWords[0]))) {
             isCorrect = true;
             break;
         }
     }
+    
+    console.log("Результат проверки:", isCorrect ? "ПРАВИЛЬНО" : "НЕПРАВИЛЬНО");
     
     if (isCorrect) {
         // Правильный ответ
@@ -141,14 +217,14 @@ function checkAnswer(spokenText) {
         memeName.classList.remove('hidden');
         hintElement.textContent = "Верно! +10 очков";
         
-        // Звук
-        if (soundsEnabled) {
-            document.getElementById('correct').play().catch(e => {});
-        }
+        // Звук правильного ответа
+        playSound('correct');
         
-        // Конфетти при серии
+        // Конфетти при серии из 3
         if (streak % 3 === 0) {
-            showConfetti();
+            setTimeout(() => {
+                showConfetti();
+            }, 500);
         }
         
         // Следующий мем через 2 секунды
@@ -166,10 +242,8 @@ function checkAnswer(spokenText) {
         memeName.classList.remove('hidden');
         hintElement.textContent = "Попробуй ещё!";
         
-        // Звук
-        if (soundsEnabled) {
-            document.getElementById('wrong').play().catch(e => {});
-        }
+        // Звук ошибки
+        playSound('wrong');
         
         // Следующий мем через 3 секунды
         setTimeout(() => {
@@ -186,9 +260,8 @@ function nextMeme() {
 
 // Конфетти
 function showConfetti() {
-    if (soundsEnabled) {
-        document.getElementById('win').play().catch(e => {});
-    }
+    // Победный звук
+    playSound('win');
     
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
@@ -197,17 +270,19 @@ function showConfetti() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
+    // Бонус за серию
     score += 20;
     scoreElement.textContent = score;
     hintElement.textContent = `СЕРИЯ ${streak}! +20 бонус`;
     
+    // Создаем частицы
     const particles = [];
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 100; i++) {
         particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height - canvas.height,
-            size: Math.random() * 8 + 4,
-            speed: Math.random() * 2 + 1,
+            size: Math.random() * 10 + 5,
+            speed: Math.random() * 3 + 1,
             color: `hsl(${Math.random() * 360}, 100%, 50%)`
         });
     }
@@ -233,6 +308,7 @@ function showConfetti() {
     
     draw();
     
+    // Останавливаем через 3 секунды
     setTimeout(() => {
         cancelAnimationFrame(animationId);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -244,7 +320,23 @@ function showConfetti() {
 // ОБРАБОТЧИКИ СОБЫТИЙ
 // ======================
 
-document.getElementById('speak-btn').addEventListener('click', startVoiceRecording);
+document.getElementById('speak-btn').addEventListener('click', function() {
+    // Активируем звуки при первом нажатии
+    if (!soundsEnabled) {
+        const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ');
+        silentAudio.volume = 0.01;
+        silentAudio.play().then(() => {
+            soundsEnabled = true;
+            preloadSounds();
+            // Запускаем запись после активации звуков
+            startVoiceRecording();
+        }).catch(e => {
+            startVoiceRecording(); // Все равно запускаем запись
+        });
+    } else {
+        startVoiceRecording();
+    }
+});
 
 document.getElementById('start-btn').addEventListener('click', () => {
     document.getElementById('start-screen').classList.add('hidden');
@@ -256,7 +348,8 @@ document.getElementById('skip-btn').addEventListener('click', nextMeme);
 
 document.getElementById('hint-btn').addEventListener('click', function() {
     const meme = memes[currentMemeIndex];
-    hintElement.textContent = `Подсказка: "${meme.name.split(' ')[0]}"...`;
+    const firstWord = meme.name.split(' ')[0];
+    hintElement.textContent = `Подсказка: "${firstWord}"...`;
     setTimeout(() => {
         hintElement.textContent = "Скажи название мема";
     }, 3000);
@@ -276,7 +369,5 @@ if (memes.length === 0) {
     console.error("Добавь мемы в массив memes!");
 } else {
     showMeme();
-    console.log("Meme Master загружен!");
+    console.log("Meme Master загружен! Мемов:", memes.length);
 }
-
-
