@@ -1,4 +1,92 @@
 // ======================
+// УПРАВЛЕНИЕ КАМЕРОЙ
+// ======================
+
+let cameraStream = null;
+let isCameraOn = false;
+const cameraVideo = document.getElementById('camera-video');
+const faceVideo = document.getElementById('face-video');
+
+// Включить камеру
+async function startCamera() {
+    try {
+        // Запрашиваем фронтальную камеру
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'user', // Фронтальная камера
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false
+        });
+        
+        cameraStream = stream;
+        
+        // Подключаем поток к видео-элементам
+        cameraVideo.srcObject = stream;
+        faceVideo.srcObject = stream;
+        
+        isCameraOn = true;
+        cameraVideo.classList.add('camera-active');
+        
+        console.log("Камера включена");
+        return true;
+        
+    } catch (error) {
+        console.log("Ошибка камеры:", error);
+        alert("Не удалось включить камеру. Разреши доступ к камере в настройках браузера.");
+        return false;
+    }
+}
+
+// Выключить камеру
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+    
+    cameraVideo.srcObject = null;
+    faceVideo.srcObject = null;
+    
+    isCameraOn = false;
+    cameraVideo.classList.remove('camera-active');
+    
+    console.log("Камера выключена");
+}
+
+// Переключить камеру
+async function toggleCamera() {
+    if (isCameraOn) {
+        stopCamera();
+        document.getElementById('game-screen').classList.remove('with-camera');
+    } else {
+        const success = await startCamera();
+        if (success) {
+            document.getElementById('game-screen').classList.add('with-camera');
+        }
+    }
+    
+    // Обновляем иконку кнопки
+    const cameraIcon = document.querySelector('#camera-toggle i');
+    if (cameraIcon) {
+        cameraIcon.className = isCameraOn ? 'fas fa-video-slash' : 'fas fa-video';
+    }
+}
+// ======================
+// ИГРОВАЯ ЛОГИКА
+// ======================
+
+let currentMemeIndex = 0;
+let score = 0;
+let streak = 0;
+let isRecording = false;
+let recognition = null;
+
+// Элементы
+const gameScreen = document.getElementById('game-screen');
+const resultText = document.getElementById('result-text');
+// ======================
 // НАСТРОЙКА МЕМОВ
 // ======================
 
@@ -349,5 +437,43 @@ if (memeImage && memes.length > 0) {
 } else {
     console.error("Ошибка загрузки игры!");
 }
+// ======================
+// ОБРАБОТЧИКИ СОБЫТИЙ
+// ======================
+
+// Кнопка включения камеры на стартовом экране
+document.getElementById('toggle-camera')?.addEventListener('click', async () => {
+    const success = await startCamera();
+    if (success) {
+        alert("Камера включена! Теперь твоё лицо будет на фоне игры.");
+    }
+});
+
+// Кнопка переключения камеры в игре
+document.getElementById('camera-toggle')?.addEventListener('click', toggleCamera);
+
+// При запуске игры включаем камеру если она еще не включена
+document.getElementById('start-btn')?.addEventListener('click', async () => {
+    // Если камера не включена, предлагаем включить
+    if (!isCameraOn) {
+        const useCamera = confirm("Включить фронтальную камеру для записи твоей реакции?");
+        if (useCamera) {
+            await startCamera();
+        }
+    }
+    
+    // Показываем игровой экран
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    
+    if (isCameraOn) {
+        gameScreen.classList.add('with-camera');
+    }
+    
+    showMeme();
+});
+
+// При закрытии страницы выключаем камеру
+window.addEventListener('beforeunload', stopCamera);
 
 
