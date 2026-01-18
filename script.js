@@ -1,41 +1,54 @@
-// База мемов с картинками (используем прямые ссылки на мемы)
+// ======================
+// НАСТРОЙКА МЕМОВ - РЕДАКТИРУЙ ЗДЕСЬ!
+// ======================
+
 const memes = [
+    // ПРИМЕР 1 - скопируй и измени под свои мемы:
     {
         id: 1,
-        name: "distracted boyfriend",
-        displayName: "Отвлечённый парень",
-        image: "https://i.imgflip.com/1ur9b0.jpg",
-        altNames: ["парень смотрит на другую", "измена", "смотрит на другую девушку"]
+        image: "memes/meme1.jpg",  // ← путь к картинке в папке memes/
+        name: "о как",  // ← как называется мем
+        altNames: ["", ""]  // ← другие названия, которые можно сказать
     },
+    // ПРИМЕР 2:
     {
         id: 2,
-        name: "two buttons",
-        displayName: "Две кнопки",
-        image: "https://i.imgflip.com/1g8my4.jpg",
-        altNames: ["красная кнопка", "синяя кнопка", "выбор"]
+        image: "memes/meme2.jpg",
+        name: "смерть в нищите",
+        altNames: ["смерть"]
     },
+    // ПРИМЕР 3:
     {
         id: 3,
-        name: "woman yelling at cat",
-        displayName: "Женщина кричит на кота",
-        image: "https://i.imgflip.com/1e4q1b.jpg",
-        altNames: ["кот за столом", "злая женщина", "кот в смокинге"]
+        image: "memes/meme3.jpg",
+        name: "умный человек в очках",
+        altNames: ["умный человек в очках скачать обои"]
     },
+    // ДОБАВЛЯЙ СВОИ МЕМЫ ТУТ:
     {
-        id: 4,
-        name: "drake hotline bling",
-        displayName: "Дрейк",
-        image: "https://i.imgflip.com/1h7in3.jpg",
-        altNames: ["дрейк не нравится", "дрейк нравится", "хотлайн блинг"]
-    },
+         id: 4,
+         image: "memes/meme4.jpg",
+         name: "шлепа",
+         altNames: ["большой шлепа"]
+     },
     {
-        id: 5,
-        name: "change my mind",
-        displayName: "Измени моё мнение",
-        image: "https://i.imgflip.com/1e5q8v.jpg",
-        altNames: ["студенческий стол", "стол с табличкой", "измените мое мнение"]
-    }
+         id: 5,
+         image: "memes/meme5.jpg",
+         name: "смайл фейс",
+         altNames: ["фейс","смайлик фейс"]
+     }
+    ,
+    {
+         id: 6,
+         image: "memes/meme6.jpg",
+         name: "солыншко",
+         altNames: ["любимая девочка"]
+     }
 ];
+
+// ======================
+// ИГРОВАЯ ЛОГИКА (не трогай)
+// ======================
 
 let currentMemeIndex = 0;
 let score = 0;
@@ -49,10 +62,7 @@ const memeImage = document.getElementById('meme-image');
 const memeName = document.getElementById('meme-name');
 const scoreElement = document.getElementById('score');
 const streakElement = document.getElementById('streak');
-const voiceIndicator = document.getElementById('voice-indicator');
 const hintElement = document.getElementById('hint');
-const memeContainer = document.getElementById('meme-container');
-const hintOverlay = document.getElementById('hint-overlay');
 
 // Активация звуков на iOS
 document.addEventListener('click', function() {
@@ -69,11 +79,8 @@ document.addEventListener('click', function() {
 function showMeme() {
     const meme = memes[currentMemeIndex];
     memeImage.src = meme.image;
-    memeImage.classList.add('blurred');
-    memeImage.classList.remove('revealed');
     memeName.textContent = '';
     memeName.classList.add('hidden');
-    hintOverlay.textContent = '?';
     hintElement.textContent = "Скажи название мема";
 }
 
@@ -93,7 +100,6 @@ function startVoiceRecording() {
 
     recognition.onstart = () => {
         isRecording = true;
-        voiceIndicator.classList.add('active');
         hintElement.textContent = "Слушаю...";
     };
 
@@ -104,7 +110,6 @@ function startVoiceRecording() {
 
     recognition.onend = () => {
         isRecording = false;
-        voiceIndicator.classList.remove('active');
         recognition = null;
     };
 
@@ -114,7 +119,7 @@ function startVoiceRecording() {
 // Проверка ответа
 function checkAnswer(spokenText) {
     const meme = memes[currentMemeIndex];
-    const correctNames = [meme.name, meme.displayName.toLowerCase(), ...meme.altNames];
+    const correctNames = [meme.name.toLowerCase(), ...meme.altNames.map(n => n.toLowerCase())];
     
     let isCorrect = false;
     for (const name of correctNames) {
@@ -131,28 +136,14 @@ function checkAnswer(spokenText) {
         scoreElement.textContent = score;
         streakElement.textContent = streak;
         
-        // Показываем результат
-        const resultEl = document.getElementById('result');
-        const resultText = document.getElementById('result-text');
-        const resultIcon = document.getElementById('result-icon');
-        
-        if (resultEl && resultText && resultIcon) {
-            resultIcon.className = 'fas fa-check-circle';
-            resultText.textContent = 'Верно! +10';
-            resultText.style.color = '#4CAF50';
-            resultEl.classList.remove('hidden');
-        }
-        
-        // Раскрываем мем
-        memeImage.classList.remove('blurred');
-        memeImage.classList.add('revealed');
-        memeName.textContent = meme.displayName;
+        // Показываем название мема
+        memeName.textContent = meme.name;
         memeName.classList.remove('hidden');
-        hintOverlay.textContent = '✓';
+        hintElement.textContent = "Верно! +10 очков";
         
         // Звук
         if (soundsEnabled) {
-            document.getElementById('correct-sound').play().catch(e => {});
+            document.getElementById('correct').play().catch(e => {});
         }
         
         // Конфетти при серии
@@ -163,7 +154,6 @@ function checkAnswer(spokenText) {
         // Следующий мем через 2 секунды
         setTimeout(() => {
             nextMeme();
-            if (resultEl) resultEl.classList.add('hidden');
         }, 2000);
         
     } else {
@@ -171,32 +161,19 @@ function checkAnswer(spokenText) {
         streak = 0;
         streakElement.textContent = streak;
         
-        // Показываем результат
-        const resultEl = document.getElementById('result');
-        const resultText = document.getElementById('result-text');
-        const resultIcon = document.getElementById('result-icon');
-        
-        if (resultEl && resultText && resultIcon) {
-            resultIcon.className = 'fas fa-times-circle';
-            resultText.textContent = 'Не угадал';
-            resultText.style.color = '#E94057';
-            resultEl.classList.remove('hidden');
-        }
-        
         // Показываем правильный ответ
-        memeName.textContent = meme.displayName;
+        memeName.textContent = `Правильно: ${meme.name}`;
         memeName.classList.remove('hidden');
-        hintOverlay.textContent = '✗';
+        hintElement.textContent = "Попробуй ещё!";
         
         // Звук
         if (soundsEnabled) {
-            document.getElementById('wrong-sound').play().catch(e => {});
+            document.getElementById('wrong').play().catch(e => {});
         }
         
         // Следующий мем через 3 секунды
         setTimeout(() => {
             nextMeme();
-            if (resultEl) resultEl.classList.add('hidden');
         }, 3000);
     }
 }
@@ -210,7 +187,7 @@ function nextMeme() {
 // Конфетти
 function showConfetti() {
     if (soundsEnabled) {
-        document.getElementById('win-sound').play().catch(e => {});
+        document.getElementById('win').play().catch(e => {});
     }
     
     const canvas = document.getElementById('confetti-canvas');
@@ -225,12 +202,12 @@ function showConfetti() {
     hintElement.textContent = `СЕРИЯ ${streak}! +20 бонус`;
     
     const particles = [];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 80; i++) {
         particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height - canvas.height,
-            size: Math.random() * 10 + 5,
-            speed: Math.random() * 3 + 1,
+            size: Math.random() * 8 + 4,
+            speed: Math.random() * 2 + 1,
             color: `hsl(${Math.random() * 360}, 100%, 50%)`
         });
     }
@@ -263,7 +240,10 @@ function showConfetti() {
     }, 3000);
 }
 
-// Обработчики событий
+// ======================
+// ОБРАБОТЧИКИ СОБЫТИЙ
+// ======================
+
 document.getElementById('speak-btn').addEventListener('click', startVoiceRecording);
 
 document.getElementById('start-btn').addEventListener('click', () => {
@@ -276,7 +256,7 @@ document.getElementById('skip-btn').addEventListener('click', nextMeme);
 
 document.getElementById('hint-btn').addEventListener('click', function() {
     const meme = memes[currentMemeIndex];
-    hintElement.textContent = `Подсказка: "${meme.displayName.split(' ')[0]}"...`;
+    hintElement.textContent = `Подсказка: "${meme.name.split(' ')[0]}"...`;
     setTimeout(() => {
         hintElement.textContent = "Скажи название мема";
     }, 3000);
@@ -289,11 +269,12 @@ document.getElementById('restart-btn').addEventListener('click', function() {
     scoreElement.textContent = score;
     streakElement.textContent = streak;
     showMeme();
-    
-    const resultEl = document.getElementById('result');
-    if (resultEl) resultEl.classList.add('hidden');
 });
 
 // Инициализация
-showMeme();
-console.log("Meme Master загружен!");
+if (memes.length === 0) {
+    console.error("Добавь мемы в массив memes!");
+} else {
+    showMeme();
+    console.log("Meme Master загружен!");
+}
