@@ -57,36 +57,18 @@ const memeName = document.getElementById('meme-name');
 const scoreElement = document.getElementById('score');
 const streakElement = document.getElementById('streak');
 const hintElement = document.getElementById('hint');
-const memeContainer = document.getElementById('meme-container');
 const gameScreen = document.getElementById('game-screen');
-const resultElement = document.getElementById('result');
-const resultText = document.getElementById('result-text');
 
-// ЗВУКИ - простой вариант
-function playSound(type) {
-    try {
-        const audio = new Audio();
-        
-        if (type === 'correct') {
-            // Простой звук правильного ответа (бип)
-            audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==";
-        } else if (type === 'wrong') {
-            // Простой звук ошибки (гудок)
-            audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==";
-        } else if (type === 'win') {
-            // Победный звук
-            audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==";
-        }
-        
-        audio.volume = 0.3;
-        audio.play().catch(e => {
-            // Игнорируем ошибки звука
-            console.log("Звук не воспроизвелся (это нормально)");
-        });
-    } catch(e) {
-        console.log("Ошибка звука:", e);
-    }
+// Создаем элемент для результата если его нет
+let resultElement = document.getElementById('result');
+if (!resultElement) {
+    resultElement = document.createElement('div');
+    resultElement.id = 'result';
+    resultElement.className = 'result hidden';
+    resultElement.innerHTML = '<div class="result-text" id="result-text"></div>';
+    document.querySelector('.container').appendChild(resultElement);
 }
+const resultText = document.getElementById('result-text');
 
 // Показать мем
 function showMeme() {
@@ -95,11 +77,15 @@ function showMeme() {
     memeName.textContent = '';
     memeName.classList.add('hidden');
     hintElement.textContent = "Скажи название мема";
-    resultElement.classList.add('hidden');
     
-    // Сброс фона
-    gameScreen.style.background = "rgba(0, 0, 0, 0.7)";
-    gameScreen.style.transition = "background 0.5s ease";
+    // Скрываем результат
+    if (resultElement) {
+        resultElement.classList.add('hidden');
+    }
+    
+    // Сброс фона на обычный
+    gameScreen.classList.remove('green-bg', 'red-bg');
+    gameScreen.classList.add('normal-bg');
 }
 
 // Запуск распознавания
@@ -160,7 +146,9 @@ function checkAnswer(spokenText) {
     }
     
     // Показываем результат
-    resultElement.classList.remove('hidden');
+    if (resultElement) {
+        resultElement.classList.remove('hidden');
+    }
     
     if (isCorrect) {
         // ПРАВИЛЬНО - ЗЕЛЕНЫЙ
@@ -180,18 +168,18 @@ function handleCorrectAnswer(meme) {
     streakElement.textContent = streak;
     
     // ЗЕЛЕНЫЙ фон
-    gameScreen.style.background = "rgba(46, 125, 50, 0.8)";
+    gameScreen.classList.remove('normal-bg', 'red-bg');
+    gameScreen.classList.add('green-bg');
     
     // Текст результата
-    resultText.textContent = "✅ ПРАВИЛЬНО! +10 очков";
-    resultText.style.color = "#4CAF50";
+    if (resultText) {
+        resultText.textContent = "✅ ПРАВИЛЬНО! +10 очков";
+        resultText.style.color = "#4CAF50";
+    }
     
     // Показываем название мема
     memeName.textContent = meme.name;
     memeName.classList.remove('hidden');
-    
-    // Звук
-    playSound('correct');
     
     // Конфетти при серии
     if (streak % 3 === 0) {
@@ -213,18 +201,18 @@ function handleWrongAnswer(meme) {
     streakElement.textContent = streak;
     
     // КРАСНЫЙ фон
-    gameScreen.style.background = "rgba(183, 28, 28, 0.8)";
+    gameScreen.classList.remove('normal-bg', 'green-bg');
+    gameScreen.classList.add('red-bg');
     
     // Текст результата
-    resultText.textContent = "❌ НЕПРАВИЛЬНО";
-    resultText.style.color = "#E94057";
+    if (resultText) {
+        resultText.textContent = "❌ НЕПРАВИЛЬНО";
+        resultText.style.color = "#E94057";
+    }
     
     // Показываем правильный ответ
     memeName.textContent = `Правильно: ${meme.name}`;
     memeName.classList.remove('hidden');
-    
-    // Звук
-    playSound('wrong');
     
     // Следующий мем через 3 секунды
     setTimeout(() => {
@@ -240,9 +228,6 @@ function nextMeme() {
 
 // Конфетти
 function showConfetti() {
-    // Победный звук
-    playSound('win');
-    
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
     
