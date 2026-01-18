@@ -6,34 +6,34 @@ const memes = [
     // ПРИМЕР 1 - скопируй и измени под свои мемы:
     {
         id: 1,
-        image: "memes/meme1.jpg",  // ← путь к картинке в папке memes/
+        image: "memes/meme1.png",  // ← путь к картинке в папке memes/
         name: "о как",  // ← как называется мем
         altNames: ["", ""]  // ← другие названия, которые можно сказать
     },
     // ПРИМЕР 2:
     {
         id: 2,
-        image: "memes/meme2.jpg",
+        image: "memes/meme2.png",
         name: "смерть в нищите",
         altNames: ["смерть"]
     },
     // ПРИМЕР 3:
     {
         id: 3,
-        image: "memes/meme3.jpg",
+        image: "memes/meme3.png",
         name: "умный человек в очках",
         altNames: ["умный человек в очках скачать обои"]
     },
     // ДОБАВЛЯЙ СВОИ МЕМЫ ТУТ:
     {
          id: 4,
-         image: "memes/meme4.jpg",
+         image: "memes/meme4.png",
          name: "шлепа",
          altNames: ["большой шлепа"]
      },
     {
          id: 5,
-         image: "memes/meme5.jpg",
+         image: "memes/meme5.png",
          name: "смайл фейс",
          altNames: ["фейс","смайлик фейс"]
      }
@@ -278,3 +278,4 @@ if (memes.length === 0) {
     showMeme();
     console.log("Meme Master загружен!");
 }
+
