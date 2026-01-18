@@ -25,7 +25,7 @@ const memes = [
         id: 4,
         image: "memes/meme4.png",
         name: "шлепа",
-        altNames: ["большой шлепа", "медвежонок", "плюшевый"]
+        altNames: ["большой шлепа", "шлёпа", "плюшевый"]
     },
     {
         id: 5,
@@ -349,4 +349,5 @@ if (memeImage && memes.length > 0) {
 } else {
     console.error("Ошибка загрузки игры!");
 }
+
 
