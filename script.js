@@ -31,7 +31,7 @@ const memes = [
         id: 5,
         image: "memes/meme5.png",
         name: "смайл фейс",
-        altNames: ["фейс", "смайлик", "улыбка"]
+        altNames: ["фейс", "smile face", "улыбка"]
     },
     {
         id: 6,
@@ -349,3 +349,4 @@ if (memeImage && memes.length > 0) {
 } else {
     console.error("Ошибка загрузки игры!");
 }
+
