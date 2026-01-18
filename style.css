@@ -14,6 +14,7 @@ body {
     align-items: center;
     overflow-x: hidden;
     color: white;
+    padding: 20px;
 }
 
 .hidden {
@@ -103,18 +104,13 @@ h1 {
     max-width: 300px;
 }
 
-.btn-start:hover, .btn-speak:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(233, 64, 87, 0.6);
+.btn-start:active, .btn-speak:active {
+    transform: scale(0.98);
 }
 
 .btn-speak {
     background: linear-gradient(45deg, #00B4DB, #0083B0);
     box-shadow: 0 10px 30px rgba(0, 180, 219, 0.4);
-}
-
-.btn-speak:hover {
-    box-shadow: 0 15px 40px rgba(0, 180, 219, 0.6);
 }
 
 /* Игровой экран */
@@ -143,14 +139,6 @@ h1 {
     padding: 12px 20px;
     border-radius: 20px;
     font-weight: bold;
-}
-
-.score i {
-    color: #FFD700;
-}
-
-.streak i {
-    color: #E94057;
 }
 
 /* Контейнер мема */
@@ -188,26 +176,7 @@ h1 {
     width: 100%;
     height: auto;
     border-radius: 15px;
-    transition: filter 0.5s ease;
-}
-
-.meme-image.blurred {
-    filter: blur(15px) brightness(0.7);
-}
-
-.meme-image.revealed {
-    filter: none;
-}
-
-.hint-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color: white;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-    opacity: 0.7;
+    display: block;
 }
 
 .meme-name {
@@ -219,102 +188,11 @@ h1 {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Секция голоса */
-.voice-section {
-    margin: 25px 0;
-}
-
-.voice-indicator {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(45deg, #00B4DB, #0083B0);
-    border-radius: 50%;
-    margin: 0 auto 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-}
-
-.voice-indicator.active {
-    background: linear-gradient(45deg, #E94057, #8A2387);
-    transform: scale(1.1);
-    animation: pulse 1s infinite;
-}
-
-.voice-indicator i {
-    font-size: 2.5rem;
-    color: white;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(233, 64, 87, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 20px rgba(233, 64, 87, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(233, 64, 87, 0);
-    }
-}
-
 .hint {
     font-size: 1rem;
     color: rgba(255, 255, 255, 0.7);
-    margin-top: 10px;
+    margin-top: 15px;
     min-height: 20px;
-}
-
-/* Результат */
-.result {
-    background: rgba(0, 0, 0, 0.8);
-    border-radius: 20px;
-    padding: 20px;
-    margin: 20px 0;
-    animation: slideIn 0.5s ease;
-    position: relative;
-    z-index: 100;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.result-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-}
-
-.result-icon .fa-check-circle {
-    color: #4CAF50;
-}
-
-.result-icon .fa-times-circle {
-    color: #E94057;
-}
-
-.result-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.correct-answer {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.1);
-    padding: 12px;
-    border-radius: 10px;
-    margin-top: 10px;
 }
 
 /* Управление */
@@ -338,9 +216,9 @@ h1 {
     max-width: 80px;
 }
 
-.btn-control:hover {
+.btn-control:active {
     background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 /* Конфетти */
@@ -360,21 +238,8 @@ h1 {
         font-size: 2.2rem;
     }
     
-    .subtitle {
-        font-size: 1rem;
-    }
-    
     .meme-image-container {
         max-width: 320px;
-    }
-    
-    .voice-indicator {
-        width: 80px;
-        height: 80px;
-    }
-    
-    .voice-indicator i {
-        font-size: 2rem;
     }
     
     .btn-start, .btn-speak {
