@@ -651,3 +651,113 @@ h1 {
 .game-screen.red-bg .meme-image-container::after {
     opacity: 1;
 }
+/* Стили для камеры */
+.camera-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    opacity: 0.3;
+    filter: blur(8px) brightness(0.7);
+    transition: all 0.5s ease;
+}
+
+.camera-active {
+    opacity: 0.4 !important;
+    filter: blur(4px) brightness(0.8) !important;
+}
+
+/* Переключатель камеры */
+.camera-control {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+}
+
+.btn-camera {
+    background: linear-gradient(45deg, #2196F3, #03A9F4);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 10px 0;
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px auto;
+}
+
+.btn-camera-small {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.camera-hint {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 10px;
+}
+
+/* Твое лицо в углу */
+.face-preview {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+#face-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Зеркальное отображение */
+}
+
+/* Фоны с камерой */
+.game-screen.with-camera {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(5px);
+}
+
+.game-screen.with-camera.green-bg {
+    background: rgba(46, 125, 50, 0.6) !important;
+}
+
+.game-screen.with-camera.red-bg {
+    background: rgba(183, 28, 28, 0.6) !important;
+}
+
+/* Для мобильных */
+@media (max-width: 768px) {
+    .face-preview {
+        width: 60px;
+        height: 60px;
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .camera-overlay {
+        opacity: 0.25;
+        filter: blur(10px) brightness(0.6);
+    }
+}
