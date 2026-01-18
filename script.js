@@ -32,13 +32,13 @@ const memes = [
         id: 4,
         image: "memes/meme4.png",
         name: "шлепа",
-        altNames: ["большой шлепа", "медвежонок", "плюшевый"]
+        altNames: ["большой шлепа", "шлёпа", "плюшевый"]
     },
     {
         id: 5,
         image: "memes/meme5.png",
         name: "смайл фейс",
-        altNames: ["фейс", "смайлик", "улыбка"]
+        altNames: ["фейс", "smile face", "улыбка"]
     },
     {
         id: 6,
@@ -402,3 +402,4 @@ document.addEventListener('DOMContentLoaded', function() {
     showMeme();
     console.log("Игра загружена!");
 });
+
