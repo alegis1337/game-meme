@@ -4,54 +4,6 @@
 
 let cameraStream = null;
 let isCameraOn = false;
-const cameraVideo = document.getElementById('camera-video');
-const faceVideo = document.getElementById('face-video');
-
-// Включить камеру
-async function startCamera() {
-    try {
-        console.log("Пытаюсь включить камеру...");
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: 'user',
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-            },
-            audio: false
-        });
-        
-        cameraStream = stream;
-        cameraVideo.srcObject = stream;
-        if (faceVideo) faceVideo.srcObject = stream;
-        
-        isCameraOn = true;
-        cameraVideo.classList.add('camera-active');
-        
-        console.log("✅ Камера включена!");
-        return true;
-        
-    } catch (error) {
-        console.log("❌ Ошибка камеры:", error);
-        alert("Не удалось включить камеру. Разреши доступ к камере в настройках браузера.");
-        return false;
-    }
-}
-
-// Выключить камеру
-function stopCamera() {
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-    }
-    
-    cameraVideo.srcObject = null;
-    if (faceVideo) faceVideo.srcObject = null;
-    
-    isCameraOn = false;
-    cameraVideo.classList.remove('camera-active');
-    
-    console.log("📷 Камера выключена");
-}
 
 // ======================
 // НАСТРОЙКА МЕМОВ
@@ -97,7 +49,7 @@ const memes = [
 ];
 
 // ======================
-// ИГРОВАЯ ЛОГИКА
+// ИГРОВЫЕ ПЕРЕМЕННЫЕ
 // ======================
 
 let currentMemeIndex = 0;
@@ -106,63 +58,83 @@ let streak = 0;
 let isRecording = false;
 let recognition = null;
 
-// Функция для безопасного получения элемента
-function getElement(id) {
-    const element = document.getElementById(id);
-    if (!element) {
-        console.warn(`Элемент с id="${id}" не найден!`);
+// ======================
+// ФУНКЦИИ КАМЕРЫ
+// ======================
+
+async function startCamera() {
+    try {
+        console.log("Включаю камеру...");
+        const videoElement = document.getElementById('camera-video');
+        const faceElement = document.getElementById('face-video');
+        
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' },
+            audio: false
+        });
+        
+        cameraStream = stream;
+        if (videoElement) videoElement.srcObject = stream;
+        if (faceElement) faceElement.srcObject = stream;
+        
+        isCameraOn = true;
+        if (videoElement) videoElement.classList.add('camera-active');
+        
+        console.log("Камера включена!");
+        return true;
+        
+    } catch (error) {
+        console.log("Ошибка камеры:", error);
+        return false;
     }
-    return element;
 }
 
-// Элементы с проверкой
-const memeImage = getElement('meme-image');
-const memeName = getElement('meme-name');
-const scoreElement = getElement('score');
-const streakElement = getElement('streak');
-const hintElement = getElement('hint');
-const gameScreen = getElement('game-screen');
-const resultElement = getElement('result');
-const resultText = getElement('result-text');
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+    isCameraOn = false;
+}
 
-// Показать мем
+// ======================
+// ИГРОВАЯ ЛОГИКА
+// ======================
+
+function getElement(id) {
+    return document.getElementById(id);
+}
+
 function showMeme() {
     const meme = memes[currentMemeIndex];
+    const memeImage = getElement('meme-image');
+    const memeName = getElement('meme-name');
+    const hintElement = getElement('hint');
+    const gameScreen = getElement('game-screen');
+    const resultElement = getElement('result');
     
-    if (memeImage) {
-        memeImage.src = meme.image;
-    }
-    
+    if (memeImage) memeImage.src = meme.image;
     if (memeName) {
         memeName.textContent = '';
         memeName.classList.add('hidden');
     }
+    if (hintElement) hintElement.textContent = "Скажи название мема";
+    if (resultElement) resultElement.classList.add('hidden');
     
-    if (hintElement) {
-        hintElement.textContent = "Скажи название мема";
-    }
-    
-    // Скрываем результат если есть
-    if (resultElement) {
-        resultElement.classList.add('hidden');
-    }
-    
-    // Сброс фона на обычный
     if (gameScreen) {
-        gameScreen.classList.remove('green-bg', 'red-bg', 'with-camera');
+        gameScreen.classList.remove('green-bg', 'red-bg');
         if (isCameraOn) {
             gameScreen.classList.add('with-camera');
         }
     }
 }
 
-// Запуск распознавания
 function startVoiceRecording() {
     if (isRecording) return;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        alert("Используй Safari на iPhone для голосового ввода");
+        alert("Используй Safari на iPhone");
         return;
     }
 
@@ -172,14 +144,12 @@ function startVoiceRecording() {
 
     recognition.onstart = () => {
         isRecording = true;
-        if (hintElement) {
-            hintElement.textContent = "Говори сейчас...";
-        }
+        const hintElement = getElement('hint');
+        if (hintElement) hintElement.textContent = "Говори сейчас...";
     };
 
     recognition.onresult = (event) => {
         const spokenText = event.results[0][0].transcript.toLowerCase();
-        console.log("Вы сказали:", spokenText);
         checkAnswer(spokenText);
     };
 
@@ -188,28 +158,14 @@ function startVoiceRecording() {
         recognition = null;
     };
 
-    recognition.onerror = (event) => {
-        console.log("Ошибка распознавания:", event.error);
-        isRecording = false;
-        if (hintElement) {
-            hintElement.textContent = "Скажи громче. Нажми 'ГОВОРИТЬ'";
-        }
-        recognition = null;
-    };
-
     recognition.start();
 }
 
-// Проверка ответа
 function checkAnswer(spokenText) {
     const meme = memes[currentMemeIndex];
     const correctAnswers = [meme.name.toLowerCase(), ...meme.altNames.map(n => n.toLowerCase())];
     
-    console.log("Правильные варианты:", correctAnswers);
-    
     let isCorrect = false;
-    
-    // Простая проверка
     for (const correct of correctAnswers) {
         if (correct && spokenText.includes(correct)) {
             isCorrect = true;
@@ -217,10 +173,9 @@ function checkAnswer(spokenText) {
         }
     }
     
-    // Показываем результат
-    if (resultElement) {
-        resultElement.classList.remove('hidden');
-    }
+    const resultElement = getElement('result');
+    const resultText = getElement('result-text');
+    if (resultElement) resultElement.classList.remove('hidden');
     
     if (isCorrect) {
         handleCorrectAnswer(meme);
@@ -229,93 +184,84 @@ function checkAnswer(spokenText) {
     }
 }
 
-// Правильный ответ
 function handleCorrectAnswer(meme) {
-    // Обновляем счёт
     score += 10;
     streak++;
+    
+    const scoreElement = getElement('score');
+    const streakElement = getElement('streak');
+    const gameScreen = getElement('game-screen');
+    const resultText = getElement('result-text');
+    const memeName = getElement('meme-name');
     
     if (scoreElement) scoreElement.textContent = score;
     if (streakElement) streakElement.textContent = streak;
     
-    // ЗЕЛЕНЫЙ фон
     if (gameScreen) {
         gameScreen.classList.remove('red-bg');
         gameScreen.classList.add('green-bg');
     }
     
-    // Текст результата
     if (resultText) {
         resultText.textContent = "✅ ПРАВИЛЬНО! +10 очков";
         resultText.style.color = "#4CAF50";
     }
     
-    // Показываем название мема
     if (memeName) {
         memeName.textContent = meme.name;
         memeName.classList.remove('hidden');
     }
     
-    // Конфетти при серии
     if (streak % 3 === 0) {
-        setTimeout(() => {
-            showConfetti();
-        }, 500);
+        setTimeout(showConfetti, 500);
     }
     
-    // Следующий мем через 2 секунды
-    setTimeout(() => {
-        nextMeme();
-    }, 2000);
+    setTimeout(nextMeme, 2000);
 }
 
-// Неправильный ответ
 function handleWrongAnswer(meme) {
-    // Сбрасываем серию
     streak = 0;
+    
+    const streakElement = getElement('streak');
+    const gameScreen = getElement('game-screen');
+    const resultText = getElement('result-text');
+    const memeName = getElement('meme-name');
+    
     if (streakElement) streakElement.textContent = streak;
     
-    // КРАСНЫЙ фон
     if (gameScreen) {
         gameScreen.classList.remove('green-bg');
         gameScreen.classList.add('red-bg');
     }
     
-    // Текст результата
     if (resultText) {
         resultText.textContent = "❌ НЕПРАВИЛЬНО";
         resultText.style.color = "#E94057";
     }
     
-    // Показываем правильный ответ
     if (memeName) {
         memeName.textContent = `Правильно: ${meme.name}`;
         memeName.classList.remove('hidden');
     }
     
-    // Следующий мем через 3 секунды
-    setTimeout(() => {
-        nextMeme();
-    }, 3000);
+    setTimeout(nextMeme, 3000);
 }
 
-// Следующий мем
 function nextMeme() {
     currentMemeIndex = (currentMemeIndex + 1) % memes.length;
     showMeme();
 }
 
-// Конфетти
 function showConfetti() {
-    const canvas = document.getElementById('confetti-canvas');
+    const canvas = getElement('confetti-canvas');
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    // Бонус за серию
     score += 20;
+    const scoreElement = getElement('score');
     if (scoreElement) scoreElement.textContent = score;
     
     const particles = [];
@@ -360,89 +306,99 @@ function showConfetti() {
 // ОБРАБОТЧИКИ СОБЫТИЙ
 // ======================
 
-// Безопасная привязка обработчиков
-function safeAddEventListener(id, event, handler) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.addEventListener(event, handler);
-    } else {
-        console.warn(`Не могу привязать обработчик к id="${id}" - элемент не найден`);
-    }
-}
-
-// Кнопка включения камеры
-safeAddEventListener('toggle-camera', 'click', async function() {
-    console.log("Кнопка 'Включить камеру' нажата");
-    const success = await startCamera();
-    if (success) {
-        this.innerHTML = '<i class="fas fa-video-slash"></i> КАМЕРА ВКЛЮЧЕНА';
-        this.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)';
-    }
-});
-
-// Кнопка запуска игры
-safeAddEventListener('start-btn', 'click', async function() {
-    console.log("Кнопка 'Играть с камерой' нажата");
-    
-    // Показываем игровой экран
-    const startScreen = document.getElementById('start-screen');
-    const gameScreen = document.getElementById('game-screen');
-    
-    if (startScreen) startScreen.classList.add('hidden');
-    if (gameScreen) {
-        gameScreen.classList.remove('hidden');
-        // Добавляем класс для фона с камерой
-        if (isCameraOn) {
-            gameScreen.classList.add('with-camera');
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Кнопка включения камеры
+    const toggleCameraBtn = getElement('toggle-camera');
+    if (toggleCameraBtn) {
+        toggleCameraBtn.addEventListener('click', async function() {
+            const success = await startCamera();
+            if (success) {
+                this.innerHTML = '<i class="fas fa-video-slash"></i> КАМЕРА ВКЛЮЧЕНА';
+                this.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)';
+            }
+        });
     }
     
-    showMeme();
-});
-
-// Остальные кнопки
-safeAddEventListener('speak-btn', 'click', startVoiceRecording);
-safeAddEventListener('skip-btn', 'click', nextMeme);
-safeAddEventListener('hint-btn', 'click', function() {
-    const meme = memes[currentMemeIndex];
-    if (hintElement) {
-        hintElement.textContent = `Подсказка: "${meme.name.split(' ')[0]}"...`;
-        setTimeout(() => {
-            if (hintElement) hintElement.textContent = "Скажи название мема";
-        }, 3000);
+    // Кнопка запуска игры
+    const startBtn = getElement('start-btn');
+    if (startBtn) {
+        startBtn.addEventListener('click', function() {
+            const startScreen = getElement('start-screen');
+            const gameScreen = getElement('game-screen');
+            
+            if (startScreen) startScreen.classList.add('hidden');
+            if (gameScreen) {
+                gameScreen.classList.remove('hidden');
+                if (isCameraOn) {
+                    gameScreen.classList.add('with-camera');
+                }
+            }
+            
+            showMeme();
+        });
     }
-});
-safeAddEventListener('restart-btn', 'click', function() {
-    score = 0;
-    streak = 0;
-    currentMemeIndex = 0;
-    if (scoreElement) scoreElement.textContent = score;
-    if (streakElement) streakElement.textContent = streak;
-    showMeme();
-});
-
-// Кнопка переключения камеры в игре
-safeAddEventListener('camera-toggle', 'click', async function() {
-    if (isCameraOn) {
-        stopCamera();
-        this.innerHTML = '<i class="fas fa-video"></i>';
-        if (gameScreen) gameScreen.classList.remove('with-camera');
-    } else {
-        const success = await startCamera();
-        if (success) {
-            this.innerHTML = '<i class="fas fa-video-slash"></i>';
-            if (gameScreen) gameScreen.classList.add('with-camera');
-        }
+    
+    // Остальные кнопки
+    const speakBtn = getElement('speak-btn');
+    if (speakBtn) speakBtn.addEventListener('click', startVoiceRecording);
+    
+    const skipBtn = getElement('skip-btn');
+    if (skipBtn) skipBtn.addEventListener('click', nextMeme);
+    
+    const hintBtn = getElement('hint-btn');
+    if (hintBtn) {
+        hintBtn.addEventListener('click', function() {
+            const meme = memes[currentMemeIndex];
+            const hintElement = getElement('hint');
+            if (hintElement) {
+                hintElement.textContent = `Подсказка: "${meme.name.split(' ')[0]}"...`;
+                setTimeout(() => {
+                    if (hintElement) hintElement.textContent = "Скажи название мема";
+                }, 3000);
+            }
+        });
     }
-});
-
-// При закрытии страницы выключаем камеру
-window.addEventListener('beforeunload', stopCamera);
-
-// Инициализация
-if (memeImage && memes.length > 0) {
+    
+    const restartBtn = getElement('restart-btn');
+    if (restartBtn) {
+        restartBtn.addEventListener('click', function() {
+            score = 0;
+            streak = 0;
+            currentMemeIndex = 0;
+            
+            const scoreElement = getElement('score');
+            const streakElement = getElement('streak');
+            if (scoreElement) scoreElement.textContent = score;
+            if (streakElement) streakElement.textContent = streak;
+            
+            showMeme();
+        });
+    }
+    
+    // Кнопка камеры в игре
+    const cameraToggleBtn = getElement('camera-toggle');
+    if (cameraToggleBtn) {
+        cameraToggleBtn.addEventListener('click', async function() {
+            if (isCameraOn) {
+                stopCamera();
+                this.innerHTML = '<i class="fas fa-video"></i>';
+                const gameScreen = getElement('game-screen');
+                if (gameScreen) gameScreen.classList.remove('with-camera');
+            } else {
+                const success = await startCamera();
+                if (success) {
+                    this.innerHTML = '<i class="fas fa-video-slash"></i>';
+                    const gameScreen = getElement('game-screen');
+                    if (gameScreen) gameScreen.classList.add('with-camera');
+                }
+            }
+        });
+    }
+    
+    // Выключить камеру при закрытии
+    window.addEventListener('beforeunload', stopCamera);
+    
+    // Инициализация
     showMeme();
-    console.log("🎮 Игра загружена! Мемов:", memes.length);
-} else {
-    console.error("❌ Ошибка загрузки игры!");
-}
+    console.log("Игра загружена!");
+});
