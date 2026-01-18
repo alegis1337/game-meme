@@ -1,5 +1,5 @@
 // ======================
-// УПРАВЛЕНИЕ КАМЕРОЙ
+// НАСТРОЙКА КАМЕРЫ
 // ======================
 
 let cameraStream = null;
@@ -10,30 +10,28 @@ const faceVideo = document.getElementById('face-video');
 // Включить камеру
 async function startCamera() {
     try {
-        // Запрашиваем фронтальную камеру
+        console.log("Пытаюсь включить камеру...");
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: 'user', // Фронтальная камера
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                facingMode: 'user',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
             },
             audio: false
         });
         
         cameraStream = stream;
-        
-        // Подключаем поток к видео-элементам
         cameraVideo.srcObject = stream;
-        faceVideo.srcObject = stream;
+        if (faceVideo) faceVideo.srcObject = stream;
         
         isCameraOn = true;
         cameraVideo.classList.add('camera-active');
         
-        console.log("Камера включена");
+        console.log("✅ Камера включена!");
         return true;
         
     } catch (error) {
-        console.log("Ошибка камеры:", error);
+        console.log("❌ Ошибка камеры:", error);
         alert("Не удалось включить камеру. Разреши доступ к камере в настройках браузера.");
         return false;
     }
@@ -47,45 +45,14 @@ function stopCamera() {
     }
     
     cameraVideo.srcObject = null;
-    faceVideo.srcObject = null;
+    if (faceVideo) faceVideo.srcObject = null;
     
     isCameraOn = false;
     cameraVideo.classList.remove('camera-active');
     
-    console.log("Камера выключена");
+    console.log("📷 Камера выключена");
 }
 
-// Переключить камеру
-async function toggleCamera() {
-    if (isCameraOn) {
-        stopCamera();
-        document.getElementById('game-screen').classList.remove('with-camera');
-    } else {
-        const success = await startCamera();
-        if (success) {
-            document.getElementById('game-screen').classList.add('with-camera');
-        }
-    }
-    
-    // Обновляем иконку кнопки
-    const cameraIcon = document.querySelector('#camera-toggle i');
-    if (cameraIcon) {
-        cameraIcon.className = isCameraOn ? 'fas fa-video-slash' : 'fas fa-video';
-    }
-}
-// ======================
-// ИГРОВАЯ ЛОГИКА
-// ======================
-
-let currentMemeIndex = 0;
-let score = 0;
-let streak = 0;
-let isRecording = false;
-let recognition = null;
-
-// Элементы
-const gameScreen = document.getElementById('game-screen');
-const resultText = document.getElementById('result-text');
 // ======================
 // НАСТРОЙКА МЕМОВ
 // ======================
@@ -113,13 +80,13 @@ const memes = [
         id: 4,
         image: "memes/meme4.png",
         name: "шлепа",
-        altNames: ["большой шлепа", "шлёпа", "плюшевый"]
+        altNames: ["большой шлепа", "медвежонок", "плюшевый"]
     },
     {
         id: 5,
         image: "memes/meme5.png",
         name: "смайл фейс",
-        altNames: ["фейс", "smile face", "улыбка"]
+        altNames: ["фейс", "смайлик", "улыбка"]
     },
     {
         id: 6,
@@ -182,8 +149,10 @@ function showMeme() {
     
     // Сброс фона на обычный
     if (gameScreen) {
-        gameScreen.classList.remove('green-bg', 'red-bg');
-        gameScreen.classList.add('normal-bg');
+        gameScreen.classList.remove('green-bg', 'red-bg', 'with-camera');
+        if (isCameraOn) {
+            gameScreen.classList.add('with-camera');
+        }
     }
 }
 
@@ -220,7 +189,7 @@ function startVoiceRecording() {
     };
 
     recognition.onerror = (event) => {
-        console.log("Ошибка (игнорируем):", event.error);
+        console.log("Ошибка распознавания:", event.error);
         isRecording = false;
         if (hintElement) {
             hintElement.textContent = "Скажи громче. Нажми 'ГОВОРИТЬ'";
@@ -271,7 +240,7 @@ function handleCorrectAnswer(meme) {
     
     // ЗЕЛЕНЫЙ фон
     if (gameScreen) {
-        gameScreen.classList.remove('normal-bg', 'red-bg');
+        gameScreen.classList.remove('red-bg');
         gameScreen.classList.add('green-bg');
     }
     
@@ -308,7 +277,7 @@ function handleWrongAnswer(meme) {
     
     // КРАСНЫЙ фон
     if (gameScreen) {
-        gameScreen.classList.remove('normal-bg', 'green-bg');
+        gameScreen.classList.remove('green-bg');
         gameScreen.classList.add('red-bg');
     }
     
@@ -401,16 +370,38 @@ function safeAddEventListener(id, event, handler) {
     }
 }
 
-safeAddEventListener('speak-btn', 'click', startVoiceRecording);
-safeAddEventListener('start-btn', 'click', () => {
+// Кнопка включения камеры
+safeAddEventListener('toggle-camera', 'click', async function() {
+    console.log("Кнопка 'Включить камеру' нажата");
+    const success = await startCamera();
+    if (success) {
+        this.innerHTML = '<i class="fas fa-video-slash"></i> КАМЕРА ВКЛЮЧЕНА';
+        this.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)';
+    }
+});
+
+// Кнопка запуска игры
+safeAddEventListener('start-btn', 'click', async function() {
+    console.log("Кнопка 'Играть с камерой' нажата");
+    
+    // Показываем игровой экран
     const startScreen = document.getElementById('start-screen');
     const gameScreen = document.getElementById('game-screen');
     
     if (startScreen) startScreen.classList.add('hidden');
-    if (gameScreen) gameScreen.classList.remove('hidden');
+    if (gameScreen) {
+        gameScreen.classList.remove('hidden');
+        // Добавляем класс для фона с камерой
+        if (isCameraOn) {
+            gameScreen.classList.add('with-camera');
+        }
+    }
     
     showMeme();
 });
+
+// Остальные кнопки
+safeAddEventListener('speak-btn', 'click', startVoiceRecording);
 safeAddEventListener('skip-btn', 'click', nextMeme);
 safeAddEventListener('hint-btn', 'click', function() {
     const meme = memes[currentMemeIndex];
@@ -430,50 +421,28 @@ safeAddEventListener('restart-btn', 'click', function() {
     showMeme();
 });
 
-// Инициализация
-if (memeImage && memes.length > 0) {
-    showMeme();
-    console.log("Игра загружена!");
-} else {
-    console.error("Ошибка загрузки игры!");
-}
-// ======================
-// ОБРАБОТЧИКИ СОБЫТИЙ
-// ======================
-
-// Кнопка включения камеры на стартовом экране
-document.getElementById('toggle-camera')?.addEventListener('click', async () => {
-    const success = await startCamera();
-    if (success) {
-        alert("Камера включена! Теперь твоё лицо будет на фоне игры.");
-    }
-});
-
 // Кнопка переключения камеры в игре
-document.getElementById('camera-toggle')?.addEventListener('click', toggleCamera);
-
-// При запуске игры включаем камеру если она еще не включена
-document.getElementById('start-btn')?.addEventListener('click', async () => {
-    // Если камера не включена, предлагаем включить
-    if (!isCameraOn) {
-        const useCamera = confirm("Включить фронтальную камеру для записи твоей реакции?");
-        if (useCamera) {
-            await startCamera();
+safeAddEventListener('camera-toggle', 'click', async function() {
+    if (isCameraOn) {
+        stopCamera();
+        this.innerHTML = '<i class="fas fa-video"></i>';
+        if (gameScreen) gameScreen.classList.remove('with-camera');
+    } else {
+        const success = await startCamera();
+        if (success) {
+            this.innerHTML = '<i class="fas fa-video-slash"></i>';
+            if (gameScreen) gameScreen.classList.add('with-camera');
         }
     }
-    
-    // Показываем игровой экран
-    document.getElementById('start-screen').classList.add('hidden');
-    document.getElementById('game-screen').classList.remove('hidden');
-    
-    if (isCameraOn) {
-        gameScreen.classList.add('with-camera');
-    }
-    
-    showMeme();
 });
 
 // При закрытии страницы выключаем камеру
 window.addEventListener('beforeunload', stopCamera);
 
-
+// Инициализация
+if (memeImage && memes.length > 0) {
+    showMeme();
+    console.log("🎮 Игра загружена! Мемов:", memes.length);
+} else {
+    console.error("❌ Ошибка загрузки игры!");
+}
