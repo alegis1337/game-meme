@@ -51,41 +51,52 @@ let streak = 0;
 let isRecording = false;
 let recognition = null;
 
-// Элементы
-const memeImage = document.getElementById('meme-image');
-const memeName = document.getElementById('meme-name');
-const scoreElement = document.getElementById('score');
-const streakElement = document.getElementById('streak');
-const hintElement = document.getElementById('hint');
-const gameScreen = document.getElementById('game-screen');
-
-// Создаем элемент для результата если его нет
-let resultElement = document.getElementById('result');
-if (!resultElement) {
-    resultElement = document.createElement('div');
-    resultElement.id = 'result';
-    resultElement.className = 'result hidden';
-    resultElement.innerHTML = '<div class="result-text" id="result-text"></div>';
-    document.querySelector('.container').appendChild(resultElement);
+// Функция для безопасного получения элемента
+function getElement(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        console.warn(`Элемент с id="${id}" не найден!`);
+    }
+    return element;
 }
-const resultText = document.getElementById('result-text');
+
+// Элементы с проверкой
+const memeImage = getElement('meme-image');
+const memeName = getElement('meme-name');
+const scoreElement = getElement('score');
+const streakElement = getElement('streak');
+const hintElement = getElement('hint');
+const gameScreen = getElement('game-screen');
+const resultElement = getElement('result');
+const resultText = getElement('result-text');
 
 // Показать мем
 function showMeme() {
     const meme = memes[currentMemeIndex];
-    memeImage.src = meme.image;
-    memeName.textContent = '';
-    memeName.classList.add('hidden');
-    hintElement.textContent = "Скажи название мема";
     
-    // Скрываем результат
+    if (memeImage) {
+        memeImage.src = meme.image;
+    }
+    
+    if (memeName) {
+        memeName.textContent = '';
+        memeName.classList.add('hidden');
+    }
+    
+    if (hintElement) {
+        hintElement.textContent = "Скажи название мема";
+    }
+    
+    // Скрываем результат если есть
     if (resultElement) {
         resultElement.classList.add('hidden');
     }
     
     // Сброс фона на обычный
-    gameScreen.classList.remove('green-bg', 'red-bg');
-    gameScreen.classList.add('normal-bg');
+    if (gameScreen) {
+        gameScreen.classList.remove('green-bg', 'red-bg');
+        gameScreen.classList.add('normal-bg');
+    }
 }
 
 // Запуск распознавания
@@ -104,7 +115,9 @@ function startVoiceRecording() {
 
     recognition.onstart = () => {
         isRecording = true;
-        hintElement.textContent = "Говори сейчас...";
+        if (hintElement) {
+            hintElement.textContent = "Говори сейчас...";
+        }
     };
 
     recognition.onresult = (event) => {
@@ -121,7 +134,9 @@ function startVoiceRecording() {
     recognition.onerror = (event) => {
         console.log("Ошибка (игнорируем):", event.error);
         isRecording = false;
-        hintElement.textContent = "Скажи громче. Нажми 'ГОВОРИТЬ'";
+        if (hintElement) {
+            hintElement.textContent = "Скажи громче. Нажми 'ГОВОРИТЬ'";
+        }
         recognition = null;
     };
 
@@ -151,10 +166,8 @@ function checkAnswer(spokenText) {
     }
     
     if (isCorrect) {
-        // ПРАВИЛЬНО - ЗЕЛЕНЫЙ
         handleCorrectAnswer(meme);
     } else {
-        // НЕПРАВИЛЬНО - КРАСНЫЙ
         handleWrongAnswer(meme);
     }
 }
@@ -164,12 +177,15 @@ function handleCorrectAnswer(meme) {
     // Обновляем счёт
     score += 10;
     streak++;
-    scoreElement.textContent = score;
-    streakElement.textContent = streak;
+    
+    if (scoreElement) scoreElement.textContent = score;
+    if (streakElement) streakElement.textContent = streak;
     
     // ЗЕЛЕНЫЙ фон
-    gameScreen.classList.remove('normal-bg', 'red-bg');
-    gameScreen.classList.add('green-bg');
+    if (gameScreen) {
+        gameScreen.classList.remove('normal-bg', 'red-bg');
+        gameScreen.classList.add('green-bg');
+    }
     
     // Текст результата
     if (resultText) {
@@ -178,8 +194,10 @@ function handleCorrectAnswer(meme) {
     }
     
     // Показываем название мема
-    memeName.textContent = meme.name;
-    memeName.classList.remove('hidden');
+    if (memeName) {
+        memeName.textContent = meme.name;
+        memeName.classList.remove('hidden');
+    }
     
     // Конфетти при серии
     if (streak % 3 === 0) {
@@ -198,11 +216,13 @@ function handleCorrectAnswer(meme) {
 function handleWrongAnswer(meme) {
     // Сбрасываем серию
     streak = 0;
-    streakElement.textContent = streak;
+    if (streakElement) streakElement.textContent = streak;
     
     // КРАСНЫЙ фон
-    gameScreen.classList.remove('normal-bg', 'green-bg');
-    gameScreen.classList.add('red-bg');
+    if (gameScreen) {
+        gameScreen.classList.remove('normal-bg', 'green-bg');
+        gameScreen.classList.add('red-bg');
+    }
     
     // Текст результата
     if (resultText) {
@@ -211,8 +231,10 @@ function handleWrongAnswer(meme) {
     }
     
     // Показываем правильный ответ
-    memeName.textContent = `Правильно: ${meme.name}`;
-    memeName.classList.remove('hidden');
+    if (memeName) {
+        memeName.textContent = `Правильно: ${meme.name}`;
+        memeName.classList.remove('hidden');
+    }
     
     // Следующий мем через 3 секунды
     setTimeout(() => {
@@ -237,7 +259,7 @@ function showConfetti() {
     
     // Бонус за серию
     score += 20;
-    scoreElement.textContent = score;
+    if (scoreElement) scoreElement.textContent = score;
     
     const particles = [];
     for (let i = 0; i < 60; i++) {
@@ -281,33 +303,49 @@ function showConfetti() {
 // ОБРАБОТЧИКИ СОБЫТИЙ
 // ======================
 
-document.getElementById('speak-btn').addEventListener('click', startVoiceRecording);
+// Безопасная привязка обработчиков
+function safeAddEventListener(id, event, handler) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.addEventListener(event, handler);
+    } else {
+        console.warn(`Не могу привязать обработчик к id="${id}" - элемент не найден`);
+    }
+}
 
-document.getElementById('start-btn').addEventListener('click', () => {
-    document.getElementById('start-screen').classList.add('hidden');
-    document.getElementById('game-screen').classList.remove('hidden');
+safeAddEventListener('speak-btn', 'click', startVoiceRecording);
+safeAddEventListener('start-btn', 'click', () => {
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    
+    if (startScreen) startScreen.classList.add('hidden');
+    if (gameScreen) gameScreen.classList.remove('hidden');
+    
     showMeme();
 });
-
-document.getElementById('skip-btn').addEventListener('click', nextMeme);
-
-document.getElementById('hint-btn').addEventListener('click', function() {
+safeAddEventListener('skip-btn', 'click', nextMeme);
+safeAddEventListener('hint-btn', 'click', function() {
     const meme = memes[currentMemeIndex];
-    hintElement.textContent = `Подсказка: "${meme.name.split(' ')[0]}"...`;
-    setTimeout(() => {
-        hintElement.textContent = "Скажи название мема";
-    }, 3000);
+    if (hintElement) {
+        hintElement.textContent = `Подсказка: "${meme.name.split(' ')[0]}"...`;
+        setTimeout(() => {
+            if (hintElement) hintElement.textContent = "Скажи название мема";
+        }, 3000);
+    }
 });
-
-document.getElementById('restart-btn').addEventListener('click', function() {
+safeAddEventListener('restart-btn', 'click', function() {
     score = 0;
     streak = 0;
     currentMemeIndex = 0;
-    scoreElement.textContent = score;
-    streakElement.textContent = streak;
+    if (scoreElement) scoreElement.textContent = score;
+    if (streakElement) streakElement.textContent = streak;
     showMeme();
 });
 
 // Инициализация
-showMeme();
-console.log("Игра загружена!");
+if (memeImage && memes.length > 0) {
+    showMeme();
+    console.log("Игра загружена!");
+} else {
+    console.error("Ошибка загрузки игры!");
+}
