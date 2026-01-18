@@ -41,7 +41,7 @@ const memes = [
     {
          id: 6,
          image: "memes/meme6.jpg",
-         name: "солыншко",
+         name: "солнышко",
          altNames: ["любимая девочка"]
      }
 ];
@@ -278,4 +278,5 @@ if (memes.length === 0) {
     showMeme();
     console.log("Meme Master загружен!");
 }
+
 
