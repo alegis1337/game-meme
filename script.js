@@ -1,111 +1,4 @@
 // ======================
-// НАСТРОЙКА ЛОГИРОВАНИЯ
-// ======================
-
-class GameLogger {
-    constructor() {
-        this.logs = [];
-        this.maxLogs = 100;
-        this.debugMode = true;
-    }
-
-    log(type, message, data = null) {
-        const timestamp = new Date().toLocaleTimeString();
-        const logEntry = {
-            timestamp,
-            type,
-            message,
-            data
-        };
-
-        this.logs.push(logEntry);
-        
-        // Ограничиваем количество логов
-        if (this.logs.length > this.maxLogs) {
-            this.logs.shift();
-        }
-
-        // Выводим в консоль
-        if (this.debugMode) {
-            const styles = {
-                'INFO': 'color: #3498db; font-weight: bold',
-                'SUCCESS': 'color: #2ecc71; font-weight: bold',
-                'ERROR': 'color: #e74c3c; font-weight: bold',
-                'WARNING': 'color: #f39c12; font-weight: bold',
-                'GAME': 'color: #9b59b6; font-weight: bold',
-                'VOICE': 'color: #1abc9c; font-weight: bold',
-                'CAMERA': 'color: #e67e22; font-weight: bold'
-            };
-
-            const style = styles[type] || 'color: #95a5a6; font-weight: bold';
-            console.log(`%c[${timestamp}] ${type}: ${message}`, style);
-            
-            if (data) {
-                console.log('Данные:', data);
-            }
-        }
-
-        // Обновляем UI если есть отладочная панель
-        this.updateDebugPanel();
-    }
-
-    info(message, data = null) {
-        this.log('INFO', message, data);
-    }
-
-    success(message, data = null) {
-        this.log('SUCCESS', message, data);
-    }
-
-    error(message, data = null) {
-        this.log('ERROR', message, data);
-    }
-
-    warning(message, data = null) {
-        this.log('WARNING', message, data);
-    }
-
-    game(message, data = null) {
-        this.log('GAME', message, data);
-    }
-
-    voice(message, data = null) {
-        this.log('VOICE', message, data);
-    }
-
-    camera(message, data = null) {
-        this.log('CAMERA', message, data);
-    }
-
-    updateDebugPanel() {
-        const debugPanel = document.getElementById('debug-panel');
-        if (debugPanel) {
-            const lastLogs = this.logs.slice(-5).reverse();
-            debugPanel.innerHTML = lastLogs.map(log => 
-                `<div class="log-entry ${log.type.toLowerCase()}">
-                    <span class="time">${log.timestamp}</span>
-                    <span class="type">${log.type}</span>
-                    <span class="message">${log.message}</span>
-                </div>`
-            ).join('');
-        }
-    }
-
-    exportLogs() {
-        return JSON.stringify(this.logs, null, 2);
-    }
-
-    clearLogs() {
-        this.logs = [];
-        console.clear();
-        this.info('Логи очищены');
-    }
-}
-
-// Создаем глобальный логгер
-const logger = new GameLogger();
-
-// ======================
 // НАСТРОЙКА КАМЕРЫ
 // ======================
 
@@ -121,7 +14,7 @@ const memes = [
         id: 1,
         image: "memes/meme1.png",
         name: "о как",
-        altNames: []
+        altNames: ["как"]
     },
     {
         id: 2,
@@ -510,6 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
     showMeme();
     console.log("Игра загружена!");
 });
+
 
 
 
