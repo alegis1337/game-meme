@@ -40,6 +40,12 @@ const memes = [
         name: "смайл фейс",
         altNames: ["фейс", "smile face", "улыбка"]
     },
+    {
+        id: 6,
+        image: "memes/meme6.png",
+        name: "лабубу",
+        altNames: ["игрушка"]
+    }
     
 ];
 
@@ -397,5 +403,6 @@ document.addEventListener('DOMContentLoaded', function() {
     showMeme();
     console.log("Игра загружена!");
 });
+
 
 
