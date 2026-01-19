@@ -14,19 +14,19 @@ const memes = [
         id: 1,
         image: "memes/meme1.png",
         name: "о как",
-        altNames: ["ох", "ух ты"]
+        altNames: []
     },
     {
         id: 2,
         image: "memes/meme2.png",
         name: "смерть в нищите",
-        altNames: ["смерть", "бедность", "нищета"]
+        altNames: ["бедность"]
     },
     {
         id: 3,
         image: "memes/meme3.png",
         name: "умный человек в очках",
-        altNames: ["умный", "очки", "интеллектуал"]
+        altNames: ["умный человек в очках скачать обои"]
     },
     {
         id: 4,
@@ -40,12 +40,7 @@ const memes = [
         name: "смайл фейс",
         altNames: ["фейс", "smile face", "улыбка"]
     },
-    {
-        id: 6,
-        image: "memes/meme6.jpg",
-        name: "солнышко",
-        altNames: ["любимая девочка", "милая", "девочка"]
-    }
+    
 ];
 
 // ======================
@@ -402,4 +397,5 @@ document.addEventListener('DOMContentLoaded', function() {
     showMeme();
     console.log("Игра загружена!");
 });
+
 
